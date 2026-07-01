@@ -106,72 +106,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "
                     { stdio: "inherit" }
                 );
             } else {
-                // Linux/macOS
-                cp.execSync(
-                    `
-bash -c "
-  set -e
-
-  sudo apt-get update
-  sudo apt-get install -y ninja-build
-
-  ./emsdk/emsdk install latest &&
-  ./emsdk/emsdk activate latest &&
-  source ./emsdk/emsdk_env.sh &&
-
-  emcmake cmake -B build-wasm -G Ninja \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_TOOLCHAIN_FILE=\\"$EMSDK/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake\\" &&
-
-  cmake --build build-wasm
-"
-`,
-                    { stdio: "inherit" }
-                );
-
-                //                 cp.execSync(
-                //                     `
-                // bash -c "
-                //   ./emsdk/emsdk install latest &&
-                //   ./emsdk/emsdk activate latest &&
-                //   source ./emsdk/emsdk_env.sh &&
-                //   emcmake cmake -B build-wasm -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$EMSDK/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake" &&
-                //   cmake --build build-wasm
-                // "
-                // `,
-                //                     { stdio: "inherit" }
-                //                 );
+                // Linux / macOS
+                cp.execSync("./scripts/build-wasm.sh", { stdio: "inherit" })
             }
-            // cp.execSync("./emsdk/emsdk install latest", { stdio: "inherit" });
-            // cp.execSync("./emsdk/emsdk activate latest", { stdio: "inherit" });
-
-            // const path = require("path");
-            // function runEmsdkEnv(emsdkRoot) {
-            //     let cmd;
-
-            //     const sh = path.join(emsdkRoot, "emsdk_env.sh");
-            //     const ps1 = path.join(emsdkRoot, "emsdk_env.ps1");
-            //     const bat = path.join(emsdkRoot, "emsdk_env.bat");
-
-            //     if (process.platform === "win32") {
-            //         if (fs.existsSync(ps1)) {
-            //             cmd = `powershell -NoProfile -ExecutionPolicy Bypass -File "${ps1}"`;
-            //         } else {
-            //             cmd = `cmd.exe /c "${bat}"`;
-            //         }
-            //     } else {
-            //         cmd = `bash -c "source '${sh}'"`;
-            //     }
-
-            //     cp.execSync(cmd, { stdio: "inherit" });
-            // }
-            // runEmsdkEnv(path.join(process.cwd(), "emsdk"));
-
-            // cp.execSync(
-            //     'emcmake cmake -B build-wasm -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="$env:EMSDK/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"',
-            //     { stdio: "inherit" }
-            // );
-            // cp.execSync("cmake --build build-wasm", { stdio: "inherit" });
         } else {
             console.log("Building Node bindings...");
             cp.execSync(

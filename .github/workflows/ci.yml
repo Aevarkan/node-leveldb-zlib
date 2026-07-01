@@ -4,10 +4,11 @@
 name: CI
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  workflow_dispatch
+  # push:
+  #   branches: [ master ]
+  # pull_request:
+  #   branches: [ master ]
   # Run on new tags
 
 jobs:
@@ -38,6 +39,16 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+
+    - name: Install build dependencies
+      if: matrix.wasm == true && matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          cmake \
+          ninja-build \
+          build-essential
+
     - run: npm install
       env:
         BUILDING_WASM: ${{ matrix.wasm }}
