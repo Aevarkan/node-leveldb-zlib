@@ -120,19 +120,34 @@ jobs:
         env: 
           SKIP_BUILD: true
 
-      - name: Publish to npm
-        run: npm publish --provenance --verbose
+      # this extracts the version from package.json file, along with other metadata
+      - id: package
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      - id: version # extract version from package.json file, to replace the output from `publish`
-        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+          if [[ "$VERSION" =~ -([0-9A-Za-z]+) ]]; then
+            echo "tag=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=latest" >> "$GITHUB_OUTPUT"
+          fi
+
+      # depending on the metadata, a tag is added
+      - name: Publish to npm
+        run: |
+          if [ "${{ steps.package.outputs.tag }}" = "latest" ]; then
+            npm publish --provenance --verbose
+          else
+            npm publish --provenance --tag "${{ steps.package.outputs.tag }}" --verbose
+          fi
 
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "${{ steps.version.outputs.version }}" \
-            --title "Release ${{ steps.version.outputs.version }}" \
-            --notes "${{ steps.version.outputs.version }}"
+          gh release create "${{ steps.package.outputs.version }}" \
+            --title "Release ${{ steps.package.outputs.version }}" \
+            --notes "${{ steps.package.outputs.version }}"
 
       - name: Display structure of downloaded files
         run: ls -R
