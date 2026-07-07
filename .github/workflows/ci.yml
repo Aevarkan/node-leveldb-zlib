@@ -120,8 +120,8 @@ jobs:
         env: 
           SKIP_BUILD: true
 
-      - name: Publish to npm
-        run: npm publish --provenance
+      # - name: Publish to npm
+      #   run: npm publish --provenance
 
       - id: version # extract version from package.json file, to replace the output from `publish`
         run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
